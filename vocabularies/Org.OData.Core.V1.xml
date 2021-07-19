@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 
   Technical Committee:
@@ -59,18 +59,18 @@
           </Record>
           <Record>
             <PropertyValue Property="rel" String="describedby" />
-            <PropertyValue Property="href" String="https://github.com/oasis-tcs/odata-vocabularies/blob/master/vocabularies/Org.OData.Core.V1.md" />
+            <PropertyValue Property="href" String="https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Core.V1.md" />
           </Record>
         </Collection>
       </Annotation>
 
       <!-- Versioning -->
 
-      <Term Name="ODataVersions" Type="Edm.String" AppliesTo="EntityContainer">
+      <Term Name="ODataVersions" Type="Edm.String" Nullable="false" AppliesTo="EntityContainer">
         <Annotation Term="Core.Description" String="A space-separated list of supported versions of the OData Protocol. Note that 4.0 is implied by 4.01 and does not need to be separately listed." />
       </Term>
 
-      <Term Name="SchemaVersion" Type="Edm.String" AppliesTo="Schema Reference">
+      <Term Name="SchemaVersion" Type="Edm.String" Nullable="false" AppliesTo="Schema Reference">
         <Annotation Term="Core.Description" String="Service-defined value representing the version of the schema. Services MAY use semantic versioning, but clients MUST NOT assume this is the case." />
       </Term>
 
@@ -314,13 +314,26 @@
 
       <!-- Term Restrictions -->
 
-      <Term Name="RequiresType" Type="Edm.String" AppliesTo="Term">
+      <Term Name="RequiresType" Type="Edm.String" Nullable="false" AppliesTo="Term">
         <Annotation Term="Core.Description" String="Terms annotated with this term can only be applied to elements that have a type that is identical to or derived from the given type name" />
+      </Term>
+
+      <Term Name="AppliesToTypeIfDynamic" Type="Core.Tag" DefaultValue="true" Nullable="false" AppliesTo="Term">
+        <Annotation Term="Core.Description" String="An annotation with this term may target a type, but only in order to allow dynamic expressions [[OData-CSDL, section 14.4](https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/cos01/odata-csdl-xml-v4.01-cos01.html#sec_DynamicExpression)] that depend on properties of the type" />
+      </Term>
+
+      <Term Name="AppliesViaContainer" Type="Core.Tag" DefaultValue="true" Nullable="false" AppliesTo="Term">
+        <Annotation Term="Core.Description" String="The target path of an annotation with this term must start with an entity container or the annotation must be embedded within an entity container, entity set or singleton" />
+        <Annotation Term="Core.LongDescription">
+          <String>Servers that apply the tagged term based solely on the entity type, structural or navigation property,
+          independently of the container, MAY additionally annotate the EntityType, Property or NavigationProperty model element
+          in order to facilitate the annotation consumption by OData clients.</String>
+        </Annotation>
       </Term>
 
       <!--Resource Paths -->
 
-      <Term Name="ResourcePath" Type="Edm.String" AppliesTo="EntitySet Singleton ActionImport FunctionImport">
+      <Term Name="ResourcePath" Type="Edm.String" Nullable="false" AppliesTo="EntitySet Singleton ActionImport FunctionImport">
         <Annotation Term="Core.Description" String="Resource path for entity container child, can be relative to xml:base and the request URL" />
         <Annotation Term="Core.IsURL" />
       </Term>
@@ -335,7 +348,7 @@
 
       <!-- Permissions -->
 
-      <Term Name="Permissions" Type="Core.Permission" AppliesTo="Property ComplexType TypeDefinition EntityType EntitySet NavigationProperty Action Function">
+      <Term Name="Permissions" Type="Core.Permission" Nullable="false" AppliesTo="Property ComplexType TypeDefinition EntityType EntitySet NavigationProperty Action Function">
         <Annotation Term="Core.Description" String="Permissions for accessing a resource" />
       </Term>
       <EnumType Name="Permission" IsFlags="true">
@@ -358,7 +371,7 @@
 
       <!-- Batch Content ID -->
 
-      <Term Name="ContentID" Type="Edm.String">
+      <Term Name="ContentID" Nullable="false" Type="Edm.String">
         <Annotation Term="Core.Description" String="A unique identifier for nested entities within a request." />
       </Term>
 
@@ -386,13 +399,15 @@
         <Annotation Term="Core.RequiresType" String="Edm.String" />
       </Term>
 
-      <Term Name="AcceptableMediaTypes" Type="Collection(Edm.String)" Nullable="false" AppliesTo="EntityType Property Term">
-        <Annotation Term="Core.Description" String="Lists the MIME types acceptable for the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term" />
+      <Term Name="AcceptableMediaTypes" Type="Collection(Edm.String)" Nullable="false" AppliesTo="EntityType Property Term TypeDefinition Parameter ReturnType">
+        <Annotation Term="Core.Description" String="Lists the MIME types acceptable for the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term." />
+        <Annotation Term="Core.LongDescription" String="The annotation of a TypeDefinition propagates to the model elements having this type" />
         <Annotation Term="Core.IsMediaType" />
       </Term>
 
-      <Term Name="MediaType" Type="Edm.String" AppliesTo="Property Term">
-        <Annotation Term="Core.Description" String="The media type of the values of a binary or string property or term" />
+      <Term Name="MediaType" Type="Edm.String" AppliesTo="Property Term TypeDefinition Parameter ReturnType">
+        <Annotation Term="Core.Description" String="The media type of the values of a binary or string or stream property or term." />
+        <Annotation Term="Core.LongDescription" String="The annotation of a TypeDefinition propagates to the model elements having this type" />
         <Annotation Term="Core.IsMediaType" />
       </Term>
 
@@ -402,7 +417,7 @@
       </Term>
 
       <Term Name="ContentDisposition" Type="Core.ContentDispositionType" AppliesTo="Property Term">
-        <Annotation Term="Core.Description" String="The content disposition of a binary or string property or term" />
+        <Annotation Term="Core.Description" String="The content disposition of a binary or stream property or term" />
       </Term>
 
       <ComplexType Name="ContentDispositionType">
@@ -476,7 +491,7 @@ Any simple identifier | Any type listed in `Validation.OpenPropertyTypeConstrain
         </Annotation>
       </ComplexType>
 
-      <Term Name="OptionalParameter" Type="Core.OptionalParameterType" AppliesTo="Parameter">
+      <Term Name="OptionalParameter" Type="Core.OptionalParameterType" Nullable="false" AppliesTo="Parameter">
         <Annotation Term="Core.Description" String="Supplying a value for the action or function parameter is optional." />
         <Annotation Term="Core.LongDescription" String="All parameters marked as optional must come after any parameters not marked as optional. The binding parameter must not be marked as optional." />
       </Term>

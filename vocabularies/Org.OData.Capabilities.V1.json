@@ -40,14 +40,13 @@
             },
             {
                 "rel": "describedby",
-                "href": "https://github.com/oasis-tcs/odata-vocabularies/blob/master/vocabularies/Org.OData.Capabilities.V1.md"
+                "href": "https://github.com/oasis-tcs/odata-vocabularies/blob/main/vocabularies/Org.OData.Capabilities.V1.md"
             }
         ],
         "@Core.LongDescription": "\nThere are some capabilities which are strongly recommended for services to support even\nthough they are optional. Support for $top and $skip is a good example as\nsupporting these query options helps with performance of a service and are essential. Such\ncapabilities are assumed to be default capabilities of an OData service even in\nthe case that a capabilities annotation doesn’t exist. Capabilities annotations are\nmainly expected to be used to explicitly specify that a service doesn’t support such\ncapabilities. Capabilities annotations can as well be used to declaratively\nspecify the support of such capabilities.\n\nOn the other hand, there are some capabilities that a service may choose to support or\nnot support and in varying degrees. $filter and $orderby are such good examples.\nThis vocabulary aims to define terms to specify support or no support for such\ncapabilities.\n\nA service is assumed to support by default the following capabilities even though an\nannotation doesn’t exist:\n- Countability ($count)\n- Client pageability ($top, $skip)\n- Expandability ($expand)\n- Indexability by key\n- Batch support ($batch)\n- Navigability of navigation properties\n\nA service is expected to support the following capabilities. If not supported, the\nservice is expected to call out the restrictions using annotations:\n- Filterability ($filter)\n- Sortability ($orderby)\n- Queryability of top level entity sets\n- Query functions\n\nA client cannot assume that a service supports certain capabilities. A client can try, but\nit needs to be prepared to handle an error in case the following capabilities are not\nsupported:\n- Insertability\n- Updatability\n- Deletability\n        ",
         "ConformanceLevel": {
             "$Kind": "Term",
             "$Type": "Capabilities.ConformanceLevelType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer"
             ],
@@ -109,7 +108,6 @@
         "IsolationSupported": {
             "$Kind": "Term",
             "$Type": "Capabilities.IsolationLevel",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer"
             ],
@@ -133,7 +131,6 @@
         "CallbackSupported": {
             "$Kind": "Term",
             "$Type": "Capabilities.CallbackType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer",
                 "EntitySet"
@@ -168,7 +165,6 @@
         "ChangeTracking": {
             "$Kind": "Term",
             "$Type": "Capabilities.ChangeTrackingType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
                 "Singleton",
@@ -201,7 +197,6 @@
         "CountRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.CountRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
                 "Singleton"
@@ -229,7 +224,6 @@
         "NavigationRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.NavigationRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
                 "Singleton"
@@ -458,7 +452,6 @@
         "BatchSupport": {
             "$Kind": "Term",
             "$Type": "Capabilities.BatchSupportType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer"
             ],
@@ -529,7 +522,6 @@
         "FilterRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.FilterRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet"
             ],
@@ -619,7 +611,6 @@
         "SortRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.SortRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet"
             ],
@@ -654,7 +645,6 @@
         "ExpandRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.ExpandRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
                 "Singleton"
@@ -696,7 +686,6 @@
         "SearchRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.SearchRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet"
             ],
@@ -755,10 +744,11 @@
         "InsertRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.InsertRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
-                "EntitySet"
+                "EntitySet",
+                "EntityType"
             ],
+            "@Core.AppliesToTypeIfDynamic": true,
             "@Core.Description": "Restrictions on insert operations"
         },
         "InsertRestrictionsType": {
@@ -777,6 +767,11 @@
                 "$Collection": true,
                 "$Type": "Edm.NavigationPropertyPath",
                 "@Core.Description": "These navigation properties do not allow deep inserts"
+            },
+            "RequiredProperties": {
+                "$Collection": true,
+                "$Type": "Edm.PropertyPath",
+                "@Core.Description": "These structural properties must be specified on insert"
             },
             "MaxLevels": {
                 "$Type": "Edm.Int32",
@@ -869,11 +864,12 @@
         "UpdateRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.UpdateRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
-                "Singleton"
+                "Singleton",
+                "EntityType"
             ],
+            "@Core.AppliesToTypeIfDynamic": true,
             "@Core.Description": "Restrictions on update operations"
         },
         "UpdateRestrictionsType": {
@@ -893,6 +889,11 @@
                 "$DefaultValue": false,
                 "@Core.Description": "Entities can be inserted, updated, and deleted via a PATCH request with a delta payload"
             },
+            "UpdateMethod": {
+                "$Type": "Capabilities.HttpMethod",
+                "$Nullable": true,
+                "@Core.Description": "Supported HTTP Methods (PUT or PATCH) for updating an entity.  If null, PATCH SHOULD be supported and PUT MAY be supported."
+            },
             "FilterSegmentSupported": {
                 "$Type": "Edm.Boolean",
                 "$DefaultValue": true,
@@ -903,10 +904,20 @@
                 "$DefaultValue": true,
                 "@Core.Description": "Members of collections can be updated via a PATCH request with a type-cast segment and a `/$each` segment"
             },
+            "NonUpdatableProperties": {
+                "$Collection": true,
+                "$Type": "Edm.PropertyPath",
+                "@Core.Description": "These structural properties cannot be specified on update"
+            },
             "NonUpdatableNavigationProperties": {
                 "$Collection": true,
                 "$Type": "Edm.NavigationPropertyPath",
                 "@Core.Description": "These navigation properties do not allow rebinding"
+            },
+            "RequiredProperties": {
+                "$Collection": true,
+                "$Type": "Edm.PropertyPath",
+                "@Core.Description": "These structural properties must be specified on update"
             },
             "MaxLevels": {
                 "$Type": "Edm.Int32",
@@ -945,10 +956,27 @@
                 "@Core.IsLanguageDependent": true
             }
         },
+        "HttpMethod": {
+            "$Kind": "EnumType",
+            "$IsFlags": true,
+            "GET": 1,
+            "GET@Core.Description": "The HTTP GET Method",
+            "PATCH": 2,
+            "PATCH@Core.Description": "The HTTP PATCH Method",
+            "PUT": 4,
+            "PUT@Core.Description": "The HTTP PUT Method",
+            "POST": 8,
+            "POST@Core.Description": "The HTTP POST Method",
+            "DELETE": 16,
+            "DELETE@Core.Description": "The HTTP DELETE Method",
+            "OPTIONS": 32,
+            "OPTIONS@Core.Description": "The HTTP OPTIONS Method",
+            "HEAD": 64,
+            "HEAD@Core.Description": "The HTTP HEAD Method"
+        },
         "DeepUpdateSupport": {
             "$Kind": "Term",
             "$Type": "Capabilities.DeepUpdateSupportType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer",
                 "EntitySet"
@@ -971,11 +999,12 @@
         "DeleteRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.DeleteRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
-                "Singleton"
+                "Singleton",
+                "EntityType"
             ],
+            "@Core.AppliesToTypeIfDynamic": true,
             "@Core.Description": "Restrictions on delete operations"
         },
         "DeleteRestrictionsType": {
@@ -1146,7 +1175,6 @@
         "ModificationQueryOptions": {
             "$Kind": "Term",
             "$Type": "Capabilities.ModificationQueryOptionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntityContainer",
                 "Action",
@@ -1190,7 +1218,6 @@
         "ReadRestrictions": {
             "$Kind": "Term",
             "$Type": "Capabilities.ReadRestrictionsType",
-            "$Nullable": true,
             "$AppliesTo": [
                 "EntitySet",
                 "Singleton"
