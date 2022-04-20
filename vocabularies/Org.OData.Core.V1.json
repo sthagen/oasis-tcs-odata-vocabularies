@@ -80,7 +80,7 @@
         "LongDescription": {
             "$Kind": "Term",
             "$Nullable": true,
-            "@Core.Description": "A lengthy description of a model element",
+            "@Core.Description": "A long description of a model element",
             "@Core.IsLanguageDependent": true
         },
         "Links": {
@@ -330,15 +330,6 @@
             ],
             "@Core.Description": "Terms annotated with this term can only be applied to elements that have a type that is identical to or derived from the given type name"
         },
-        "AppliesToTypeIfDynamic": {
-            "$Kind": "Term",
-            "$Type": "Core.Tag",
-            "$DefaultValue": true,
-            "$AppliesTo": [
-                "Term"
-            ],
-            "@Core.Description": "An annotation with this term may target a type, but only in order to allow dynamic expressions [[OData-CSDL, section 14.4](https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/cos01/odata-csdl-xml-v4.01-cos01.html#sec_DynamicExpression)] that depend on properties of the type"
-        },
         "AppliesViaContainer": {
             "$Kind": "Term",
             "$Type": "Core.Tag",
@@ -346,8 +337,8 @@
             "$AppliesTo": [
                 "Term"
             ],
-            "@Core.Description": "The target path of an annotation with this term must start with an entity container or the annotation must be embedded within an entity container, entity set or singleton",
-            "@Core.LongDescription": "Servers that apply the tagged term based solely on the entity type, structural or navigation property,\n          independently of the container, MAY additionally annotate the EntityType, Property or NavigationProperty model element\n          in order to facilitate the annotation consumption by OData clients."
+            "@Core.Description": "The target path of an annotation with the tagged term MUST start with an entity container or the annotation MUST be embedded within an entity container, entity set or singleton",
+            "@Core.LongDescription": "Services MAY additionally annotate a container-independent model element (entity type, property, navigation property) if allowed by the `AppliesTo` property of the term\n          and the annotation applies to all uses of that model element."
         },
         "ResourcePath": {
             "$Kind": "Term",
@@ -471,7 +462,7 @@
                 "Parameter",
                 "ReturnType"
             ],
-            "@Core.Description": "Lists the MIME types acceptable for the annotated entity type marked with HasStream=\"true\" or the annotated binary, stream, or string property or term.",
+            "@Core.Description": "Lists the MIME types acceptable for the annotated entity type marked with HasStream=\"true\" or the annotated binary, stream, or string property or term",
             "@Core.LongDescription": "The annotation of a TypeDefinition propagates to the model elements having this type",
             "@Core.IsMediaType": true
         },
@@ -479,13 +470,14 @@
             "$Kind": "Term",
             "$Nullable": true,
             "$AppliesTo": [
+                "EntityType",
                 "Property",
                 "Term",
                 "TypeDefinition",
                 "Parameter",
                 "ReturnType"
             ],
-            "@Core.Description": "The media type of the values of a binary or string or stream property or term.",
+            "@Core.Description": "The media type of the media stream of the annotated entity type marked with HasStream=\"true\" or the annotated binary, stream, or string property or term",
             "@Core.LongDescription": "The annotation of a TypeDefinition propagates to the model elements having this type",
             "@Core.IsMediaType": true
         },
@@ -503,18 +495,23 @@
         "ContentDisposition": {
             "$Kind": "Term",
             "$Type": "Core.ContentDispositionType",
-            "$Nullable": true,
             "$AppliesTo": [
+                "EntityType",
                 "Property",
                 "Term"
             ],
-            "@Core.Description": "The content disposition of a binary or stream property or term"
+            "@Core.Description": "The content disposition of the media stream of the annotated entity type marked with HasStream=\"true\" or the annotated binary, stream, or string property or term"
         },
         "ContentDispositionType": {
             "$Kind": "ComplexType",
+            "Type": {
+                "$Nullable": true,
+                "$DefaultValue": "attachment",
+                "@Core.Description": "The disposition type of the binary or stream value, see [RFC 6266, Disposition Type](https://datatracker.ietf.org/doc/html/rfc6266#section-4.2)"
+            },
             "Filename": {
                 "$Nullable": true,
-                "@Core.Description": "The proposed filename for downloading the binary or stream value"
+                "@Core.Description": "The proposed filename for downloading the binary or stream value, see [RFC 6266, Disposition Parameter: 'Filename'](https://datatracker.ietf.org/doc/html/rfc6266#section-4.3)"
             }
         },
         "OptimisticConcurrency": {
@@ -524,7 +521,7 @@
             "$AppliesTo": [
                 "EntitySet"
             ],
-            "@Core.Description": "Data modification requires the use of ETags. A non-empty collection contains the set of properties that are used to compute the ETag. An empty collection means that the service won't tell how it computes the ETag."
+            "@Core.Description": "Data modification requires the use of ETags. A non-empty collection contains the set of properties that are used to compute the ETag. An empty collection means that the service won't tell how it computes the ETag"
         },
         "AdditionalProperties": {
             "$Kind": "Term",
@@ -542,10 +539,11 @@
             "$Type": "Core.Tag",
             "$DefaultValue": true,
             "$AppliesTo": [
+                "EntityType",
                 "NavigationProperty",
                 "Property"
             ],
-            "@Core.Description": "The service will automatically expand this stream or navigation property even if not requested with $expand"
+            "@Core.Description": "The service will automatically expand this stream property, navigation property, or the media stream of this media entity type even if not requested with $expand"
         },
         "AutoExpandReferences": {
             "$Kind": "Term",
@@ -571,6 +569,11 @@
             "$Kind": "TypeDefinition",
             "$UnderlyingType": "Edm.String",
             "@Core.Description": "The qualified name of a type in scope."
+        },
+        "QualifiedActionName": {
+            "$Kind": "TypeDefinition",
+            "$UnderlyingType": "Edm.String",
+            "@Core.Description": "The qualified name of an action in scope."
         },
         "Ordered": {
             "$Kind": "Term",
@@ -677,6 +680,30 @@
             "$MaxLength": 128,
             "@Core.Description": "A [simple identifier](https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#sec_SimpleIdentifier)",
             "@Validation.Pattern": "^[\\p{L}\\p{Nl}_][\\p{L}\\p{Nl}\\p{Nd}\\p{Mn}\\p{Mc}\\p{Pc}\\p{Cf}]{0,}$"
+        },
+        "GeometryFeature": {
+            "$Kind": "Term",
+            "$Type": "Core.GeometryFeatureType",
+            "$Nullable": true,
+            "@Core.Description": "A [Feature Object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) represents a spatially bounded thing"
+        },
+        "GeometryFeatureType": {
+            "$Kind": "ComplexType",
+            "@Core.Description": "A [Feature Object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) represents a spatially bounded thing",
+            "geometry": {
+                "$Type": "Edm.Geometry",
+                "$Nullable": true,
+                "@Core.Description": "Location of the Feature"
+            },
+            "properties": {
+                "$Type": "Core.Dictionary",
+                "$Nullable": true,
+                "@Core.Description": "Properties of the Feature"
+            },
+            "id": {
+                "$Nullable": true,
+                "@Core.Description": "Commonly used identifer for a Feature"
+            }
         }
     }
 }

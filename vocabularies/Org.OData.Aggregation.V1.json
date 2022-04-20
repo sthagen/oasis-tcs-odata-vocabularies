@@ -40,7 +40,8 @@
             "$Type": "Aggregation.ApplySupportedType",
             "$AppliesTo": [
                 "EntitySet",
-                "Collection"
+                "Collection",
+                "EntityType"
             ],
             "@Core.AppliesViaContainer": true,
             "@Core.Description": "This entity set or collection supports the `$apply` system query option"
@@ -51,7 +52,8 @@
             "$AppliesTo": [
                 "EntityContainer"
             ],
-            "@Core.Description": "Default support of the `$apply` system query option for all collection-valued resources in the container. Annotating term `ApplySupported` for a specific collection-valued resource overrides the default setting"
+            "@Core.Description": "Default support of the `$apply` system query option for all collection-valued resources in the container",
+            "@Core.LongDescription": "Annotating term [`ApplySupported`](#ApplySupported) for a specific collection-valued resource overrides the default support with the specified properties using PATCH semantics:\n\n- Primitive or collection-valued properties specified in `ApplySupported` replace the corresponding properties specified in `ApplySupportedDefaults`\n\n- Complex-valued properties specified in `ApplySupported` override the corresponding properties specified in `ApplySupportedDefaults` using PATCH semantics recursively\n\n- Properties specified neither in `ApplySupported` nor in `ApplySupportedDefaults` have their default value\n          "
         },
         "ApplySupportedBase": {
             "$Kind": "ComplexType",
@@ -111,13 +113,13 @@
         },
         "RollupType": {
             "$Kind": "EnumType",
-            "@Core.Description": "The number of `rollup` operators allowed in a `groupby` transformation",
+            "@Core.Description": "The number of `rollup` or `rollupall` operators allowed in a `groupby` transformation",
             "None": 0,
-            "None@Core.Description": "No `rollup` support",
+            "None@Core.Description": "No support for `rollup` or `rollupall` ",
             "SingleHierarchy": 1,
-            "SingleHierarchy@Core.Description": "Only one `rollup` operator per `groupby`",
+            "SingleHierarchy@Core.Description": "Only one `rollup` or `rollupall` operator per `groupby`",
             "MultipleHierarchies": 2,
-            "MultipleHierarchies@Core.Description": "Full `rollup` support"
+            "MultipleHierarchies@Core.Description": "Full support for `rollup` and `rollupall`"
         },
         "Groupable": {
             "$Kind": "Term",
@@ -156,7 +158,8 @@
             "$AppliesTo": [
                 "EntitySet",
                 "Collection",
-                "EntityContainer"
+                "EntityContainer",
+                "EntityType"
             ],
             "@Core.AppliesViaContainer": true,
             "@Core.Description": "Dynamic property that can be used in the `aggregate` transformation",

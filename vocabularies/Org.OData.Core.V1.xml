@@ -108,7 +108,7 @@
       </Term>
 
       <Term Name="LongDescription" Type="Edm.String">
-        <Annotation Term="Core.Description" String="A lengthy description of a model element" />
+        <Annotation Term="Core.Description" String="A long description of a model element" />
         <Annotation Term="Core.IsLanguageDependent" />
       </Term>
 
@@ -318,16 +318,11 @@
         <Annotation Term="Core.Description" String="Terms annotated with this term can only be applied to elements that have a type that is identical to or derived from the given type name" />
       </Term>
 
-      <Term Name="AppliesToTypeIfDynamic" Type="Core.Tag" DefaultValue="true" Nullable="false" AppliesTo="Term">
-        <Annotation Term="Core.Description" String="An annotation with this term may target a type, but only in order to allow dynamic expressions [[OData-CSDL, section 14.4](https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/cos01/odata-csdl-xml-v4.01-cos01.html#sec_DynamicExpression)] that depend on properties of the type" />
-      </Term>
-
       <Term Name="AppliesViaContainer" Type="Core.Tag" DefaultValue="true" Nullable="false" AppliesTo="Term">
-        <Annotation Term="Core.Description" String="The target path of an annotation with this term must start with an entity container or the annotation must be embedded within an entity container, entity set or singleton" />
+        <Annotation Term="Core.Description" String="The target path of an annotation with the tagged term MUST start with an entity container or the annotation MUST be embedded within an entity container, entity set or singleton" />
         <Annotation Term="Core.LongDescription">
-          <String>Servers that apply the tagged term based solely on the entity type, structural or navigation property,
-          independently of the container, MAY additionally annotate the EntityType, Property or NavigationProperty model element
-          in order to facilitate the annotation consumption by OData clients.</String>
+          <String>Services MAY additionally annotate a container-independent model element (entity type, property, navigation property) if allowed by the `AppliesTo` property of the term
+          and the annotation applies to all uses of that model element.</String>
         </Annotation>
       </Term>
 
@@ -400,13 +395,13 @@
       </Term>
 
       <Term Name="AcceptableMediaTypes" Type="Collection(Edm.String)" Nullable="false" AppliesTo="EntityType Property Term TypeDefinition Parameter ReturnType">
-        <Annotation Term="Core.Description" String="Lists the MIME types acceptable for the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term." />
+        <Annotation Term="Core.Description" String="Lists the MIME types acceptable for the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term" />
         <Annotation Term="Core.LongDescription" String="The annotation of a TypeDefinition propagates to the model elements having this type" />
         <Annotation Term="Core.IsMediaType" />
       </Term>
 
-      <Term Name="MediaType" Type="Edm.String" AppliesTo="Property Term TypeDefinition Parameter ReturnType">
-        <Annotation Term="Core.Description" String="The media type of the values of a binary or string or stream property or term." />
+      <Term Name="MediaType" Type="Edm.String" AppliesTo="EntityType Property Term TypeDefinition Parameter ReturnType">
+        <Annotation Term="Core.Description" String="The media type of the media stream of the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term" />
         <Annotation Term="Core.LongDescription" String="The annotation of a TypeDefinition propagates to the model elements having this type" />
         <Annotation Term="Core.IsMediaType" />
       </Term>
@@ -416,18 +411,21 @@
         <Annotation Term="Core.RequiresType" String="Edm.String" />
       </Term>
 
-      <Term Name="ContentDisposition" Type="Core.ContentDispositionType" AppliesTo="Property Term">
-        <Annotation Term="Core.Description" String="The content disposition of a binary or stream property or term" />
+      <Term Name="ContentDisposition" Type="Core.ContentDispositionType" Nullable="false" AppliesTo="EntityType Property Term">
+        <Annotation Term="Core.Description" String="The content disposition of the media stream of the annotated entity type marked with HasStream=&quot;true&quot; or the annotated binary, stream, or string property or term" />
       </Term>
 
       <ComplexType Name="ContentDispositionType">
+        <Property Name="Type" Type="Edm.String" DefaultValue="attachment">
+          <Annotation Term="Core.Description" String="The disposition type of the binary or stream value, see [RFC 6266, Disposition Type](https://datatracker.ietf.org/doc/html/rfc6266#section-4.2)" />
+        </Property>
         <Property Name="Filename" Type="Edm.String">
-          <Annotation Term="Core.Description" String="The proposed filename for downloading the binary or stream value" />
+          <Annotation Term="Core.Description" String="The proposed filename for downloading the binary or stream value, see [RFC 6266, Disposition Parameter: 'Filename'](https://datatracker.ietf.org/doc/html/rfc6266#section-4.3)" />
         </Property>
       </ComplexType>
 
       <Term Name="OptimisticConcurrency" Type="Collection(Edm.PropertyPath)" Nullable="false" AppliesTo="EntitySet">
-        <Annotation Term="Core.Description" String="Data modification requires the use of ETags. A non-empty collection contains the set of properties that are used to compute the ETag. An empty collection means that the service won't tell how it computes the ETag." />
+        <Annotation Term="Core.Description" String="Data modification requires the use of ETags. A non-empty collection contains the set of properties that are used to compute the ETag. An empty collection means that the service won't tell how it computes the ETag" />
       </Term>
 
       <Term Name="AdditionalProperties" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="EntityType ComplexType">
@@ -435,8 +433,8 @@
         <Annotation Term="Core.LongDescription" String="If specified as false clients can assume that instances will not contain dynamic properties, irrespective of the value of the OpenType attribute." />
       </Term>
 
-      <Term Name="AutoExpand" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="NavigationProperty Property">
-        <Annotation Term="Core.Description" String="The service will automatically expand this stream or navigation property even if not requested with $expand" />
+      <Term Name="AutoExpand" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="EntityType NavigationProperty Property">
+        <Annotation Term="Core.Description" String="The service will automatically expand this stream property, navigation property, or the media stream of this media entity type even if not requested with $expand" />
       </Term>
 
       <Term Name="AutoExpandReferences" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="NavigationProperty">
@@ -453,6 +451,10 @@
 
       <TypeDefinition Name="QualifiedTypeName" UnderlyingType="Edm.String">
         <Annotation Term="Core.Description" String="The qualified name of a type in scope." />
+      </TypeDefinition>
+
+      <TypeDefinition Name="QualifiedActionName" UnderlyingType="Edm.String">
+        <Annotation Term="Core.Description" String="The qualified name of an action in scope." />
       </TypeDefinition>
 
       <Term Name="Ordered" Type="Core.Tag" Nullable="false" DefaultValue="true" AppliesTo="Property NavigationProperty EntitySet ReturnType Term">
@@ -520,6 +522,22 @@ Any simple identifier | Any type listed in `Validation.OpenPropertyTypeConstrain
         <Annotation Term="Core.Description" String="A [simple identifier](https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html#sec_SimpleIdentifier)" />
         <Annotation Term="Validation.Pattern" String="^[\p{L}\p{Nl}_][\p{L}\p{Nl}\p{Nd}\p{Mn}\p{Mc}\p{Pc}\p{Cf}]{0,}$" />
       </TypeDefinition>
+
+      <Term Name="GeometryFeature" Type="Core.GeometryFeatureType">
+        <Annotation Term="Core.Description" String="A [Feature Object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) represents a spatially bounded thing" />
+      </Term>
+      <ComplexType Name="GeometryFeatureType">
+        <Annotation Term="Core.Description" String="A [Feature Object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) represents a spatially bounded thing" />
+        <Property Name="geometry" Type="Edm.Geometry" Nullable="true">
+          <Annotation Term="Core.Description" String="Location of the Feature" />
+        </Property>
+        <Property Name="properties" Type="Core.Dictionary" Nullable="true">
+          <Annotation Term="Core.Description" String="Properties of the Feature" />
+        </Property>
+        <Property Name="id" Type="Edm.String" Nullable="true">
+          <Annotation Term="Core.Description" String="Commonly used identifer for a Feature" />
+        </Property>
+      </ComplexType>
 
     </Schema>
   </edmx:DataServices>
